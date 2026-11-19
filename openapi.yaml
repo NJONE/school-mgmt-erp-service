@@ -1,0 +1,124 @@
+openapi: 3.1.0
+info:
+  title: School Management ERP API
+  version: 0.1.0
+  description: Initial health and metadata API for the school management ERP backend.
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Liveness check
+      responses:
+        '200':
+          description: The process is responding.
+  /ready:
+    get:
+      summary: Readiness check
+      responses:
+        '200':
+          description: The API is ready to serve requests.
+        '503':
+          description: The database connection is not ready.
+  /api/v1/metadata:
+    get:
+      summary: List registered entity metadata
+      responses:
+        '200':
+          description: Registered entities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+  /api/v1/metadata/modules:
+    get:
+      summary: List metadata modules
+      responses:
+        '200':
+          description: Registered modules.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+  /api/v1/metadata/{entity}:
+    parameters:
+      - name: entity
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get entity metadata
+      responses:
+        '200':
+          description: Entity metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Metadata entity not found.
+  /api/v1/metadata/{entity}/form:
+    parameters:
+      - name: entity
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get entity form layout
+      responses:
+        '200':
+          description: Form layout.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Metadata entity not found.
+  /api/v1/metadata/{entity}/table:
+    parameters:
+      - name: entity
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get entity table layout
+      responses:
+        '200':
+          description: Table layout.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Metadata entity not found.
+  /api/v1/metadata/{entity}/filters:
+    parameters:
+      - name: entity
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get entity filter layout
+      responses:
+        '200':
+          description: Filter layout.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Metadata entity not found.
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          const: true
+        data: {}

@@ -1,0 +1,1276 @@
+# MASTER DEVELOPMENT PROMPT
+# Project: school-mgmt-erp-service
+# Product: Commercial Multi-Tenant School Management SaaS
+
+## 1. ROLE
+
+Act as a Principal Software Architect, Node.js Backend Engineer, MongoDB Database Architect, SaaS Security Engineer, and API Platform Developer.
+
+Develop a production-oriented backend service for a commercial School Management ERP.
+
+The service must support multiple educational organizations, schools, branches, academic sessions, students, staff, parents, and administrative users.
+
+Build a reusable, metadata-driven backend architecture that will later integrate with an Angular 22 frontend.
+
+Do not generate a demo application. Build a modular, scalable, secure, maintainable backend foundation.
+
+---
+
+# 2. TECHNOLOGY STACK
+
+Use:
+
+- Node.js LTS
+- Express.js
+- TypeScript
+- MongoDB Atlas
+- Mongoose
+- Zod
+- JWT
+- Argon2id or bcrypt
+- Swagger / OpenAPI
+- Pino or Winston
+- Vitest or Jest
+- Supertest
+- ESLint
+- Prettier
+- Docker
+- GitHub Actions
+- Azure App Service compatible deployment
+
+Use TypeScript strict mode.
+
+Use ESM consistently.
+
+Avoid unnecessary dependencies.
+
+---
+
+# 3. PROJECT STRUCTURE
+
+Create the following modular monorepo backend structure.
+
+school-mgmt-erp-service/
+│
+├── src/
+│   ├── app.ts
+│   ├── server.ts
+│   │
+│   ├── config/
+│   │   ├── env.ts
+│   │   ├── database.ts
+│   │   ├── security.ts
+│   │   ├── cors.ts
+│   │   └── logger.ts
+│   │
+│   ├── core/
+│   │   ├── metadata/
+│   │   │   ├── models/
+│   │   │   ├── registry/
+│   │   │   ├── validators/
+│   │   │   ├── services/
+│   │   │   └── interfaces/
+│   │   ├── crud/
+│   │   ├── database/
+│   │   ├── tenancy/
+│   │   ├── authorization/
+│   │   ├── authentication/
+│   │   ├── audit/
+│   │   ├── pagination/
+│   │   ├── filtering/
+│   │   ├── sorting/
+│   │   ├── errors/
+│   │   ├── validation/
+│   │   ├── logging/
+│   │   ├── storage/
+│   │   └── utilities/
+│   │
+│   ├── modules/
+│   │   ├── platform/
+│   │   ├── tenants/
+│   │   ├── schools/
+│   │   ├── branches/
+│   │   ├── users/
+│   │   ├── roles/
+│   │   ├── permissions/
+│   │   ├── students/
+│   │   ├── parents/
+│   │   ├── staff/
+│   │   ├── academics/
+│   │   ├── attendance/
+│   │   ├── examinations/
+│   │   ├── results/
+│   │   ├── fees/
+│   │   ├── finance/
+│   │   ├── payroll/
+│   │   ├── leave/
+│   │   ├── library/
+│   │   ├── transport/
+│   │   ├── inventory/
+│   │   ├── notifications/
+│   │   ├── reports/
+│   │   └── subscriptions/
+│   │
+│   ├── metadata/
+│   │   ├── entities/
+│   │   ├── forms/
+│   │   ├── tables/
+│   │   ├── filters/
+│   │   └── navigation/
+│   │
+│   ├── middleware/
+│   ├── routes/
+│   ├── integrations/
+│   │   ├── email/
+│   │   ├── sms/
+│   │   ├── whatsapp/
+│   │   ├── payments/
+│   │   └── azure/
+│   │
+│   └── types/
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── security/
+│
+├── scripts/
+├── docs/
+│   ├── architecture/
+│   ├── metadata/
+│   ├── database/
+│   ├── api/
+│   └── deployment/
+│
+├── .github/workflows/
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── tsconfig.json
+├── eslint.config.js
+├── README.md
+└── openapi.yaml
+
+Keep modules independent and reusable.
+
+---
+
+# 4. COMMON ENTITY METADATA FRAMEWORK
+
+Create a complete strongly typed metadata system.
+
+Implement:
+
+- EntityMetadata
+- FieldMetadata
+- FieldType
+- FieldOption
+- LookupMetadata
+- ValidationMetadata
+- EntityPermissionMetadata
+- EntityScopeMetadata
+- FormLayoutMetadata
+- FormTabMetadata
+- FormSectionMetadata
+- FormFieldLayoutMetadata
+- TableLayoutMetadata
+- TableColumnMetadata
+- FilterLayoutMetadata
+- FilterFieldMetadata
+- RelationMetadata
+- NavigationMetadata
+- ImportMetadata
+- ExportMetadata
+- AuditMetadata
+- EntityFeatureMetadata
+
+Metadata must support:
+
+## EntityMetadata
+
+- entity
+- entityCode
+- title
+- pluralTitle
+- description
+- module
+- apiEndpoint
+- collectionName
+- primaryKey
+- version
+- tenantScoped
+- schoolScoped
+- branchScoped
+- academicSessionScoped
+- entityType
+- fields
+- relationships
+- permissions
+- formLayout
+- tableLayout
+- filterLayout
+- features
+- audit
+- import
+- export
+- navigation
+- displayField
+- searchFields
+- defaultSort
+- defaultPageSize
+- maxPageSize
+
+## FieldMetadata
+
+- key
+- label
+- description
+- type
+- required
+- readonly
+- disabled
+- hidden
+- visibleInForm
+- visibleInTable
+- searchable
+- sortable
+- filterable
+- exportable
+- importable
+- sensitive
+- unique
+- indexed
+- defaultValue
+- placeholder
+- helpText
+- order
+- width
+- minLength
+- maxLength
+- min
+- max
+- precision
+- scale
+- pattern
+- options
+- lookup
+- validators
+- permission
+- conditionalVisibility
+- conditionalRequired
+- relation
+- nestedFields
+- arrayConfig
+
+Support these field types:
+
+- text
+- textarea
+- number
+- integer
+- decimal
+- email
+- password
+- date
+- datetime
+- time
+- boolean
+- checkbox
+- radio
+- select
+- multiselect
+- autocomplete
+- file
+- image
+- phone
+- currency
+- percentage
+- address
+- richtext
+- json
+- object
+- array
+- reference
+- computed
+- readonly
+
+Metadata must be validated using Zod.
+
+---
+
+# 5. METADATA REGISTRY
+
+Implement MetadataRegistryService.
+
+Requirements:
+
+- Register metadata.
+- Retrieve metadata by entity code.
+- Retrieve metadata by module.
+- List registered entities.
+- Validate metadata definitions.
+- Detect duplicate entity codes.
+- Detect duplicate field keys.
+- Validate field types.
+- Validate lookup references.
+- Validate permissions.
+- Validate form layout references.
+- Validate table column references.
+- Validate filter references.
+- Validate relationship references.
+- Support metadata versioning.
+- Support metadata caching.
+- Support module registration.
+- Support metadata export.
+- Support metadata validation reports.
+
+Metadata must be registered during application startup.
+
+Do not allow arbitrary collection names from client requests.
+
+Do not allow clients to submit metadata and directly execute MongoDB operations.
+
+---
+
+# 6. CREATE ALL REQUIRED ENTITY METADATA
+
+Create metadata definitions for every entity below.
+
+Each entity must include:
+
+- Field definitions.
+- Field types.
+- Required fields.
+- Default values.
+- Validation rules.
+- Searchable fields.
+- Table columns.
+- Form layouts.
+- Filter layouts.
+- Relationships.
+- Lookup references.
+- Permission definitions.
+- Entity scope.
+- CRUD feature configuration.
+- Import/export configuration.
+- Audit configuration.
+
+## PLATFORM MODULE
+
+1. platformSettings
+2. platformUsers
+3. platformRoles
+4. platformPermissions
+5. featureFlags
+6. platformAuditLogs
+
+## SAAS MODULE
+
+7. tenants
+8. tenantSettings
+9. tenantDomains
+10. subscriptionPlans
+11. subscriptions
+12. subscriptionInvoices
+13. subscriptionPayments
+14. subscriptionUsage
+15. tenantFeatureOverrides
+
+## SCHOOL MODULE
+
+16. schools
+17. branches
+18. schoolSettings
+19. schoolBranding
+20. schoolCalendars
+21. holidays
+22. academicSessions
+23. schoolDepartments
+24. schoolDesignations
+
+## SECURITY MODULE
+
+25. users
+26. roles
+27. permissions
+28. userRoles
+29. userSessions
+30. refreshTokens
+31. passwordResetTokens
+32. otpChallenges
+33. loginAttempts
+
+## STUDENT MODULE
+
+34. students
+35. studentAdmissions
+36. studentParents
+37. studentDocuments
+38. studentAddresses
+39. studentMedicalProfiles
+40. studentTransfers
+41. studentPromotions
+42. studentWithdrawals
+43. studentAlumni
+
+## PARENT MODULE
+
+44. parents
+45. parentContacts
+46. parentStudentRelationships
+
+## STAFF MODULE
+
+47. staff
+48. staffDocuments
+49. staffDepartments
+50. staffDesignations
+51. staffQualifications
+52. staffExperience
+53. staffBankAccounts
+
+## ACADEMIC MODULE
+
+54. classes
+55. sections
+56. subjects
+57. subjectGroups
+58. classSubjects
+59. sectionTeachers
+60. teacherSubjects
+61. teacherAssignments
+62. periods
+63. timetables
+64. timetableEntries
+65. curriculum
+66. lessonPlans
+67. homework
+68. assignments
+69. assignmentSubmissions
+
+## ATTENDANCE MODULE
+
+70. studentAttendance
+71. staffAttendance
+72. attendanceRules
+73. attendanceCorrections
+74. attendanceLeaveMappings
+
+## EXAMINATION MODULE
+
+75. examTypes
+76. examinations
+77. examSchedules
+78. examSubjects
+79. examRegistrations
+80. marks
+81. markEntrySessions
+82. gradingScales
+83. grades
+84. results
+85. reportCards
+86. resultPublishing
+
+## FEE MODULE
+
+87. feeCategories
+88. feeStructures
+89. feeStructureItems
+90. studentFees
+91. feeInstallments
+92. feePayments
+93. feeReceipts
+94. feeDiscounts
+95. scholarships
+96. lateFeeRules
+97. feeRefunds
+98. feeConcessions
+
+## FINANCE MODULE
+
+99. financialYears
+100. accounts
+101. journalEntries
+102. journalEntryLines
+103. expenseCategories
+104. expenses
+105. incomeCategories
+106. incomeTransactions
+107. bankAccounts
+108. bankTransactions
+109. paymentMethods
+
+## HR MODULE
+
+110. leaveTypes
+111. leavePolicies
+112. leaveRequests
+113. leaveBalances
+114. salaryStructures
+115. salaryComponents
+116. payrollRuns
+117. payrollEntries
+118. payslips
+119. staffLoans
+120. staffAdvances
+
+## LIBRARY MODULE
+
+121. bookCategories
+122. books
+123. bookCopies
+124. bookAuthors
+125. bookPublishers
+126. libraryMembers
+127. bookIssues
+128. bookReservations
+129. libraryFines
+
+## TRANSPORT MODULE
+
+130. vehicles
+131. vehicleTypes
+132. drivers
+133. transportRoutes
+134. transportStops
+135. routeStops
+136. studentTransportAssignments
+137. vehicleMaintenance
+138. transportFees
+
+## INVENTORY MODULE
+
+139. inventoryCategories
+140. inventoryItems
+141. inventoryStocks
+142. suppliers
+143. purchaseOrders
+144. purchaseOrderItems
+145. goodsReceipts
+146. stockMovements
+147. assetCategories
+148. assets
+149. assetAssignments
+150. assetMaintenance
+
+## COMMUNICATION MODULE
+
+151. announcements
+152. announcementRecipients
+153. notificationTemplates
+154. notifications
+155. notificationDeliveries
+156. messageThreads
+157. messages
+158. communicationPreferences
+
+## DOCUMENT MODULE
+
+159. documentCategories
+160. documents
+161. documentTemplates
+162. documentGenerationJobs
+
+## REPORT MODULE
+
+163. reportDefinitions
+164. reportSchedules
+165. reportExecutionLogs
+166. exportJobs
+
+## SYSTEM MODULE
+
+167. auditLogs
+168. systemSettings
+169. applicationSettings
+170. lookupValues
+171. customFields
+172. entitySequences
+173. importJobs
+174. importJobErrors
+
+For every entity, create a dedicated metadata definition file.
+
+Do not leave entities with empty fields or placeholder metadata.
+
+If the entity is complex, define the metadata in a dedicated file and document its schema.
+
+---
+
+# 7. STUDENT ENTITY – COMPLETE METADATA
+
+Implement Student as the reference entity.
+
+Fields:
+
+## Identity
+
+- admissionNumber
+- registrationNumber
+- rollNumber
+- firstName
+- middleName
+- lastName
+- fullName
+- dateOfBirth
+- gender
+- bloodGroup
+- nationality
+- religion
+- category
+- motherTongue
+- photo
+
+## Admission
+
+- admissionDate
+- admissionType
+- academicSessionId
+- classId
+- sectionId
+- streamId
+- houseId
+- studentStatus
+- previousSchool
+- previousClass
+- transferCertificateNumber
+
+## Contact
+
+- email
+- mobileNumber
+- alternateMobileNumber
+- currentAddress
+- permanentAddress
+- city
+- district
+- state
+- country
+- postalCode
+
+## Parent Relationships
+
+- parentIds
+- primaryGuardianId
+- emergencyContactId
+
+## Medical
+
+- medicalConditions
+- allergies
+- medications
+- emergencyMedicalNotes
+- specialNeeds
+
+## Additional
+
+- transportRouteId
+- transportStopId
+- hostelId
+- boardingStatus
+- scholarshipId
+- discountId
+- remarks
+- documents
+
+Create student metadata including:
+
+- Personal Information tab.
+- Admission Details tab.
+- Parent Information tab.
+- Address tab.
+- Medical Information tab.
+- Academic Information tab.
+- Transport tab.
+- Documents tab.
+
+Create student table metadata.
+
+Columns:
+- admissionNumber
+- photo
+- fullName
+- classId
+- sectionId
+- gender
+- dateOfBirth
+- mobileNumber
+- studentStatus
+
+Create filters:
+- academicSessionId
+- classId
+- sectionId
+- gender
+- studentStatus
+- admissionDate
+- search
+
+---
+
+# 8. GENERIC CRUD ENGINE
+
+Implement GenericCrudService using registered entity metadata.
+
+Supported operations:
+
+- Create entity.
+- Get entity by ID.
+- Get paginated entity list.
+- Update entity.
+- Soft delete entity.
+- Search entities.
+- Filter entities.
+- Sort entities.
+- Count entities.
+- Export entity data.
+
+API:
+
+GET    /api/v1/entities/:entity
+GET    /api/v1/entities/:entity/:id
+POST   /api/v1/entities/:entity
+PATCH  /api/v1/entities/:entity/:id
+DELETE /api/v1/entities/:entity/:id
+
+Metadata API:
+
+GET /api/v1/metadata
+GET /api/v1/metadata/modules
+GET /api/v1/metadata/:entity
+GET /api/v1/metadata/:entity/form
+GET /api/v1/metadata/:entity/table
+GET /api/v1/metadata/:entity/filters
+
+Entity list query parameters:
+
+- page
+- pageSize
+- sortBy
+- sortOrder
+- search
+- filters
+- fields
+
+Implement safe query parsing.
+
+Only allow filtering and sorting by metadata-approved fields.
+
+Never allow MongoDB operators to be passed directly from users.
+
+Never allow arbitrary aggregation pipelines.
+
+Never allow unrestricted collection access.
+
+---
+
+# 9. DATABASE MODEL GENERATION
+
+Create Mongoose schemas and models for all registered entities.
+
+Each entity must have a dedicated schema.
+
+Use:
+
+- ObjectId references.
+- Schema validation.
+- Compound indexes.
+- Unique constraints.
+- Tenant-aware unique indexes.
+- Timestamp support.
+- Soft deletion.
+- Schema versioning.
+- Appropriate collection names.
+
+Create index definitions separately.
+
+Do not use a single generic schema for all entities.
+
+Metadata describes the entity, while Mongoose schemas enforce database integrity.
+
+Use metadata to generate safe CRUD validation, not to replace database schemas.
+
+---
+
+# 10. MULTI-TENANT SECURITY
+
+Implement centralized tenant context.
+
+Hierarchy:
+
+Platform
+  └── Tenant
+       └── School
+            └── Branch
+                 └── Academic Session
+
+Every tenant-owned record must include tenantId.
+
+School-owned records must include schoolId.
+
+Branch-owned records must include branchId.
+
+Implement:
+
+- TenantContext.
+- SchoolContext.
+- BranchContext.
+- AcademicSessionContext.
+- TenantScopeMiddleware.
+- TenantScopedRepository.
+- TenantScopedCrudService.
+
+Requirements:
+
+- Resolve tenant context from authenticated identity.
+- Validate school access.
+- Validate branch access.
+- Validate academic session access.
+- Prevent cross-tenant access.
+- Prevent cross-school access.
+- Prevent cross-branch access.
+- Prevent unauthorized aggregation.
+- Prevent cross-tenant exports.
+- Prevent IDOR vulnerabilities.
+- Apply tenant scope to every query.
+- Apply tenant scope to every update.
+- Apply tenant scope to every delete.
+- Apply tenant scope to every count and report.
+
+Never trust tenantId, schoolId, branchId, or user role submitted from Angular.
+
+Tenant context must be derived and validated on the server.
+
+---
+
+# 11. AUTHENTICATION & RBAC
+
+Implement:
+
+- Login.
+- Logout.
+- Refresh token.
+- Refresh token rotation.
+- Forgot password.
+- Reset password.
+- Change password.
+- OTP verification.
+- Session management.
+- Account lockout.
+- Password hashing.
+- JWT authentication.
+- Role management.
+- Permission management.
+- Role assignment.
+- Permission middleware.
+
+Roles:
+
+- SaaS Super Admin
+- Tenant Owner
+- Tenant Admin
+- School Admin
+- Branch Admin
+- Principal
+- Vice Principal
+- Teacher
+- Accountant
+- HR Manager
+- Librarian
+- Transport Manager
+- Admission Officer
+- Parent
+- Student
+- Staff
+
+Permissions:
+
+- entity.create
+- entity.read
+- entity.update
+- entity.delete
+- entity.export
+- entity.import
+- entity.approve
+- entity.publish
+
+Implement resource-specific permissions.
+
+Use RBAC with scope restrictions.
+
+Super Admin must have platform-level access.
+
+Tenant users must not have platform-level access.
+
+---
+
+# 12. COMMON VALIDATION FRAMEWORK
+
+Implement reusable Zod validation.
+
+Support:
+
+- Required.
+- Optional.
+- Nullable.
+- Min length.
+- Max length.
+- Numeric minimum.
+- Numeric maximum.
+- Email.
+- Phone.
+- Date.
+- Enum.
+- Pattern.
+- Object.
+- Array.
+- Nested object.
+- Reference validation.
+- Conditional validation.
+- Custom validation.
+
+Generate validation schemas from metadata where appropriate.
+
+Never rely exclusively on metadata-generated validation.
+
+Use explicit server-side validation for sensitive business operations.
+
+---
+
+# 13. API RESPONSE STANDARD
+
+Create consistent API response types.
+
+Success:
+
+{
+  "success": true,
+  "data": {},
+  "message": "Operation completed",
+  "meta": {}
+}
+
+Paginated response:
+
+{
+  "success": true,
+  "data": [],
+  "meta": {
+    "page": 1,
+    "pageSize": 20,
+    "totalRecords": 100,
+    "totalPages": 5
+  }
+}
+
+Error:
+
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [],
+  "requestId": "..."
+}
+
+Never expose internal stack traces in production.
+
+---
+
+# 14. AUDIT LOGGING
+
+Implement audit logs for:
+
+- Create.
+- Update.
+- Delete.
+- Login.
+- Logout.
+- Permission changes.
+- Role assignment.
+- Student admission.
+- Student promotion.
+- Fee payment.
+- Refund.
+- Result publishing.
+- Staff salary processing.
+- Tenant settings changes.
+
+Audit fields:
+
+- tenantId
+- schoolId
+- branchId
+- userId
+- action
+- entity
+- entityId
+- timestamp
+- ipAddress
+- userAgent
+- requestId
+- changes
+- metadata
+
+Do not store passwords, access tokens, refresh tokens, OTPs, or unnecessary sensitive personal information in audit logs.
+
+---
+
+# 15. DOCUMENTATION
+
+Generate:
+
+- README.md
+- architecture.md
+- metadata-architecture.md
+- entity-specifications.md
+- database-design.md
+- tenant-isolation.md
+- authentication.md
+- authorization.md
+- generic-crud.md
+- metadata-api.md
+- api-reference.md
+- azure-deployment.md
+- development-guide.md
+
+Generate Swagger documentation.
+
+---
+
+# 16. TESTING
+
+Create unit tests for:
+
+- Metadata registry.
+- Metadata validation.
+- Generic CRUD.
+- Tenant context.
+- Authorization.
+- Validation.
+- Pagination.
+- Filtering.
+- Sorting.
+- Audit logging.
+
+Create integration tests for:
+
+- Student creation.
+- Student update.
+- Student listing.
+- Student search.
+- Student deletion.
+- Tenant isolation.
+- School isolation.
+- Branch isolation.
+- Permission enforcement.
+- Sensitive field protection.
+- Invalid field rejection.
+
+Create security tests for:
+
+- IDOR.
+- Cross-tenant access.
+- Mass assignment.
+- NoSQL injection.
+- Unauthorized exports.
+- Invalid JWT.
+- Refresh token reuse.
+- Privilege escalation.
+
+---
+
+# 17. AZURE DEPLOYMENT
+
+Prepare:
+
+- Dockerfile.
+- docker-compose.yml.
+- Azure App Service configuration.
+- Azure Key Vault integration.
+- Azure Blob Storage integration.
+- MongoDB Atlas configuration.
+- GitHub Actions CI/CD.
+- Health check endpoint.
+- Readiness endpoint.
+- Logging.
+- Application Insights.
+- Environment variables.
+- Production deployment guide.
+
+Environment variables:
+
+NODE_ENV
+PORT
+API_PREFIX
+MONGODB_URI
+JWT_ACCESS_SECRET
+JWT_REFRESH_SECRET
+JWT_ACCESS_EXPIRY
+JWT_REFRESH_EXPIRY
+CORS_ORIGINS
+AZURE_STORAGE_CONNECTION_STRING
+AZURE_STORAGE_CONTAINER
+AZURE_KEY_VAULT_URL
+APPLICATIONINSIGHTS_CONNECTION_STRING
+
+Validate environment variables at application startup.
+
+Never hardcode production secrets.
+
+---
+
+# 18. IMPLEMENTATION PHASES
+
+Do not implement the entire backend in one uncontrolled operation.
+
+PHASE 1:
+- Project setup.
+- Architecture.
+- TypeScript.
+- Express.
+- MongoDB.
+- Logging.
+- Error handling.
+- Health checks.
+- Docker.
+
+PHASE 2:
+- Metadata interfaces.
+- Metadata registry.
+- Metadata validation.
+- Metadata definitions.
+- Entity metadata registration.
+
+PHASE 3:
+- Authentication.
+- Users.
+- Roles.
+- Permissions.
+- Tenant context.
+
+PHASE 4:
+- Generic CRUD engine.
+- Pagination.
+- Search.
+- Filtering.
+- Sorting.
+- Field allowlisting.
+
+PHASE 5:
+- Student management.
+- Parent management.
+- Staff management.
+- School management.
+- Branch management.
+
+PHASE 6:
+- Academic modules.
+- Attendance.
+- Examination.
+- Results.
+
+PHASE 7:
+- Fees.
+- Finance.
+- Payroll.
+- Library.
+- Transport.
+- Inventory.
+
+PHASE 8:
+- Notifications.
+- Reports.
+- Subscriptions.
+- Document generation.
+
+PHASE 9:
+- Testing.
+- Security hardening.
+- Azure deployment.
+
+---
+
+# 19. IMPORTANT AGENT INSTRUCTIONS
+
+Before writing code:
+
+1. Inspect the existing repository.
+2. Preserve working functionality.
+3. Identify reusable code.
+4. Create implementation plan.
+5. Create architecture documentation.
+6. Identify dependencies.
+7. Implement incrementally.
+8. Verify TypeScript compilation.
+9. Run tests.
+10. Fix errors before continuing.
+
+Do not generate fake implementations.
+
+Do not leave empty metadata definitions.
+
+Do not create unrestricted generic MongoDB access.
+
+Do not bypass authorization.
+
+Do not mark features completed without testing.
+
+Do not generate Angular frontend in this repository.
+
+This repository is exclusively the Node.js backend service.
+
+---
+
+# 20. FIRST EXECUTION TASK
+
+Begin implementing PHASE 1 and PHASE 2.
+
+First create:
+
+1. Project structure.
+2. package.json.
+3. TypeScript configuration.
+4. Express application.
+5. MongoDB connection.
+6. Environment validation.
+7. Logging.
+8. Error handling.
+9. Health check API.
+10. Metadata interfaces.
+11. Metadata registry.
+12. Metadata validation.
+13. Entity metadata registration system.
+14. Student metadata.
+15. Parent metadata.
+16. Staff metadata.
+17. School metadata.
+18. Branch metadata.
+19. Class metadata.
+20. Section metadata.
+21. Subject metadata.
+22. Metadata API endpoints.
+23. Metadata unit tests.
+24. README and architecture documentation.
+
+Then verify:
+
+- npm install succeeds.
+- npm run build succeeds.
+- npm run test succeeds.
+- MongoDB connection works.
+- Metadata registry initializes.
+- All initial entity metadata validates.
+- Metadata API returns valid JSON.
+- Health check returns HTTP 200.
+
+After completing this task, provide:
+- Created files.
+- Architecture summary.
+- Metadata entities implemented.
+- Build results.
+- Test results.
+- Commands to run locally.
+- Next implementation phase.
+
+Start now.
