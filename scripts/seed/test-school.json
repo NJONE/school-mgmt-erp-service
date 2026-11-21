@@ -1,0 +1,50 @@
+{
+  "tenant": {
+    "name": "Greenwood International School",
+    "code": "GREENWOOD",
+    "status": "active"
+  },
+  "school": {
+    "code": "GW-PRIMARY",
+    "name": "Greenwood Primary & Secondary School",
+    "legalName": "Greenwood International School Limited",
+    "email": "office@greenwood.test",
+    "phone": "+1-555-010-1000",
+    "website": "https://greenwood.test",
+    "address": "100 Learning Lane",
+    "city": "Test City",
+    "state": "Test State",
+    "country": "United States",
+    "postalCode": "10001",
+    "timezone": "America/New_York",
+    "currency": "USD",
+    "status": "active"
+  },
+  "branch": {
+    "code": "GW-MAIN",
+    "name": "Main Campus",
+    "email": "main-campus@greenwood.test",
+    "phone": "+1-555-010-1001",
+    "address": "100 Learning Lane",
+    "city": "Test City",
+    "state": "Test State",
+    "country": "United States",
+    "isMainBranch": true,
+    "status": "active"
+  },
+  "academicSession": {
+    "name": "2026-2027 Academic Session",
+    "code": "AY-2026-2027",
+    "startDate": "2026-08-01",
+    "endDate": "2027-06-30",
+    "status": "active"
+  },
+  "administrator": {
+    "name": "Greenwood School Administrator",
+    "email": "admin@greenwood.test",
+    "password": "TestPassword@123",
+    "roleKey": "school-admin",
+    "roleName": "School Administrator",
+    "permissions": ["*"]
+  }
+}
