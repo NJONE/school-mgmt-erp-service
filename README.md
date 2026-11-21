@@ -41,3 +41,14 @@ npm run format:check
 See [the architecture overview](docs/architecture/architecture.md) for the
 current service boundaries and metadata registration model. The initial API
 contract is in [openapi.yaml](./openapi.yaml).
+
+Phase 3 and the initial Phase 4 implementation are included: JWT authentication,
+refresh-token rotation, tenant-scoped identity, role/permission enforcement,
+and metadata allowlisted CRUD with pagination, search, filtering, sorting,
+soft deletion, and cross-tenant scope.
+
+Phases 5–8 add registered metadata and secured workflow routes for student
+promotion, bulk student attendance, examination result publishing, fee
+payments, payroll processing, notification delivery queues, and document
+generation jobs. Domain records remain accessible through the generic entity
+API and are tenant/school/branch/session scoped according to their metadata.

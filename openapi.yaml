@@ -112,7 +112,82 @@ paths:
                 $ref: '#/components/schemas/SuccessResponse'
         '404':
           description: Metadata entity not found.
+  /api/v1/workflows/student-promotions:
+    post:
+      summary: Promote a student to a class and section
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Promotion completed.
+        '403':
+          description: Insufficient permission or tenant context.
+  /api/v1/workflows/attendance/student:
+    post:
+      summary: Record student attendance for multiple records
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Attendance records created.
+  /api/v1/workflows/examinations/{id}/publish:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Publish examination results
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Examination and results published.
+  /api/v1/workflows/fees/payments:
+    post:
+      summary: Record a fee payment
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Payment recorded.
+  /api/v1/workflows/payroll/runs/{id}/process:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Process a payroll run
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payroll run processed.
+  /api/v1/workflows/notifications/send:
+    post:
+      summary: Queue a notification
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Notification queued.
+  /api/v1/workflows/documents/generate:
+    post:
+      summary: Queue document generation
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Document generation queued.
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     SuccessResponse:
       type: object

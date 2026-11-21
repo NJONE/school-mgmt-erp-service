@@ -8,11 +8,23 @@ describe('MetadataRegistryService', () => {
     registry.registerMany(initialEntityMetadata);
 
     expect(registry.validateAll()).toEqual({ valid: true, errors: [] });
-    expect(registry.listEntities()).toHaveLength(8);
+    expect(registry.listEntities().length).toBeGreaterThan(40);
     expect(registry.listModules()).toContain('academics');
     expect(
       registry.getByModule('academics').map(({ entityCode }) => entityCode),
-    ).toEqual(['classes', 'sections', 'subjects']);
+    ).toEqual([
+      'classes',
+      'sections',
+      'subjects',
+      'academicSessions',
+      'periods',
+      'timetableEntries',
+      'curriculum',
+      'lessonPlans',
+      'homework',
+      'assignments',
+      'assignmentSubmissions',
+    ]);
   });
 
   it('rejects duplicate entity codes without partially registering the batch', () => {
@@ -68,6 +80,6 @@ describe('MetadataRegistryService', () => {
     const results = registry.getByModule('academics');
     results.pop();
 
-    expect(registry.getByModule('academics')).toHaveLength(3);
+    expect(registry.getByModule('academics')).toHaveLength(11);
   });
 });

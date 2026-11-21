@@ -1,0 +1,730 @@
+import { baseEntity, field } from './helpers.js';
+import type { EntityMetadata } from '../interfaces/metadata.js';
+
+function entity(
+  entity: string,
+  title: string,
+  module: string,
+  fields: EntityMetadata['fields'][number][],
+): EntityMetadata {
+  const tableColumns = fields
+    .filter((item) =>
+      [
+        'code',
+        'name',
+        'title',
+        'status',
+        'date',
+        'amount',
+        'studentId',
+        'staffId',
+        'referenceNumber',
+        'paymentStatus',
+        'isbn',
+        'registrationNumber',
+        'sku',
+      ].includes(item.key),
+    )
+    .map((item) => item.key);
+  if (tableColumns.length === 0) {
+    tableColumns.push(
+      ...fields
+        .filter((item) => item.key !== 'id')
+        .slice(0, 3)
+        .map((item) => item.key),
+    );
+  }
+  return baseEntity({
+    entity,
+    title,
+    pluralTitle: `${title}s`,
+    description: `${title} configuration or transaction record.`,
+    module,
+    entityType: [
+      'feeCategories',
+      'feeStructures',
+      'salaryStructures',
+      'bookCategories',
+      'vehicleTypes',
+      'inventoryCategories',
+    ].includes(entity)
+      ? 'master'
+      : 'transaction',
+    scopes: {
+      schoolScoped: true,
+      branchScoped: true,
+      academicSessionScoped: [
+        'studentFees',
+        'feePayments',
+        'feeReceipts',
+        'payrollRuns',
+      ].includes(entity),
+    },
+    fields,
+    tabs: [
+      {
+        title: 'Details',
+        sections: [
+          {
+            title: 'Record',
+            columns: 2,
+            fields: fields
+              .filter(
+                (item) =>
+                  !['id', 'tenantId', 'createdAt', 'updatedAt'].includes(
+                    item.key,
+                  ),
+              )
+              .map((item) => ({ field: item.key })),
+          },
+        ],
+      },
+    ],
+    columns: tableColumns,
+    filters: fields.filter((item) => item.filterable).map((item) => item.key),
+    searchFields: fields
+      .filter((item) => item.searchable)
+      .map((item) => item.key),
+    displayField:
+      fields.find((item) => item.searchable)?.key ??
+      fields.find((item) => item.key !== 'id')?.key ??
+      'id',
+  });
+}
+
+export const phase7Metadata: EntityMetadata[] = [
+  entity('feeCategories', 'Fee Category', 'fees', [
+    field('id', 'Category ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Category Name', 'text', {
+      required: true,
+      searchable: true,
+      sortable: true,
+    }),
+    field('code', 'Category Code', 'text', { required: true, unique: true }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'inactive'].map((value) => ({ label: value, value })),
+    }),
+  ]),
+  entity('feeStructures', 'Fee Structure', 'fees', [
+    field('id', 'Structure ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('academicSessionId', 'Academic Session', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Structure Name', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('classId', 'Class', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'inactive', 'archived'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('studentFees', 'Student Fee', 'fees', [
+    field('id', 'Fee ID', 'readonly', { readonly: true, visibleInForm: false }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('academicSessionId', 'Academic Session', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('studentId', 'Student', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('amount', 'Amount Due', 'currency', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('paidAmount', 'Paid Amount', 'currency', {
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('balanceAmount', 'Balance Amount', 'currency', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('dueDate', 'Due Date', 'date', { required: true, filterable: true }),
+  ]),
+  entity('feePayments', 'Fee Payment', 'fees', [
+    field('id', 'Payment ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('academicSessionId', 'Academic Session', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('studentId', 'Student', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('amount', 'Amount', 'currency', {
+      required: true,
+      min: 0.01,
+      precision: 12,
+      scale: 2,
+    }),
+    field('paymentDate', 'Payment Date', 'datetime', {
+      required: true,
+      sortable: true,
+      filterable: true,
+    }),
+    field('paymentMethod', 'Payment Method', 'select', {
+      required: true,
+      options: ['cash', 'bank', 'card', 'upi', 'cheque'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+    field('referenceNumber', 'Reference Number', 'text', {
+      searchable: true,
+      unique: true,
+    }),
+    field('status', 'Status', 'select', {
+      required: true,
+      defaultValue: 'completed',
+      filterable: true,
+      options: ['pending', 'completed', 'failed', 'refunded'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('feeReceipts', 'Fee Receipt', 'fees', [
+    field('id', 'Receipt ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('studentId', 'Student', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('paymentId', 'Payment', 'reference', { required: true }),
+    field('receiptNumber', 'Receipt Number', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('amount', 'Amount', 'currency', {
+      required: true,
+      min: 0.01,
+      precision: 12,
+      scale: 2,
+    }),
+  ]),
+  entity('financialYears', 'Financial Year', 'finance', [
+    field('id', 'Year ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Financial Year', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('startDate', 'Start Date', 'date', {
+      required: true,
+      filterable: true,
+    }),
+    field('endDate', 'End Date', 'date', { required: true, filterable: true }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'closed'].map((value) => ({ label: value, value })),
+    }),
+  ]),
+  entity('accounts', 'Account', 'finance', [
+    field('id', 'Account ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('code', 'Account Code', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('name', 'Account Name', 'text', { required: true, searchable: true }),
+    field('accountType', 'Account Type', 'select', {
+      required: true,
+      options: ['asset', 'liability', 'income', 'expense', 'equity'].map(
+        (value) => ({ label: value, value }),
+      ),
+    }),
+  ]),
+  entity('expenses', 'Expense', 'finance', [
+    field('id', 'Expense ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('title', 'Expense Title', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('amount', 'Amount', 'currency', {
+      required: true,
+      min: 0.01,
+      precision: 12,
+      scale: 2,
+    }),
+    field('date', 'Expense Date', 'date', {
+      required: true,
+      sortable: true,
+      filterable: true,
+    }),
+    field('status', 'Status', 'select', {
+      required: true,
+      defaultValue: 'pending',
+      filterable: true,
+      options: ['pending', 'approved', 'paid', 'rejected'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('salaryStructures', 'Salary Structure', 'payroll', [
+    field('id', 'Structure ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Structure Name', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('basicSalary', 'Basic Salary', 'currency', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'inactive'].map((value) => ({ label: value, value })),
+    }),
+  ]),
+  entity('payrollRuns', 'Payroll Run', 'payroll', [
+    field('id', 'Payroll Run ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('academicSessionId', 'Academic Session', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('period', 'Pay Period', 'text', { required: true, searchable: true }),
+    field('status', 'Status', 'select', {
+      required: true,
+      defaultValue: 'draft',
+      filterable: true,
+      options: ['draft', 'processing', 'completed', 'failed'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('payrollEntries', 'Payroll Entry', 'payroll', [
+    field('id', 'Entry ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('staffId', 'Staff', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('payrollRunId', 'Payroll Run', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('grossAmount', 'Gross Amount', 'currency', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('deductions', 'Deductions', 'currency', {
+      required: true,
+      defaultValue: 0,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+    field('netAmount', 'Net Amount', 'currency', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 2,
+    }),
+  ]),
+  entity('bookCategories', 'Book Category', 'library', [
+    field('id', 'Category ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Category Name', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('code', 'Category Code', 'text', { required: true, unique: true }),
+  ]),
+  entity('books', 'Book', 'library', [
+    field('id', 'Book ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('title', 'Title', 'text', {
+      required: true,
+      searchable: true,
+      sortable: true,
+    }),
+    field('isbn', 'ISBN', 'text', { searchable: true, unique: true }),
+    field('author', 'Author', 'text', { required: true, searchable: true }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'available',
+      filterable: true,
+      options: ['available', 'unavailable', 'archived'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('bookCopies', 'Book Copy', 'library', [
+    field('id', 'Copy ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('bookId', 'Book', 'reference', { required: true, filterable: true }),
+    field('barcode', 'Barcode', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('status', 'Status', 'select', {
+      required: true,
+      defaultValue: 'available',
+      filterable: true,
+      options: ['available', 'issued', 'lost', 'damaged', 'maintenance'].map(
+        (value) => ({ label: value, value }),
+      ),
+    }),
+  ]),
+  entity('bookIssues', 'Book Issue', 'library', [
+    field('id', 'Issue ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('bookCopyId', 'Book Copy', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('memberId', 'Library Member', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('issueDate', 'Issue Date', 'date', {
+      required: true,
+      filterable: true,
+    }),
+    field('dueDate', 'Due Date', 'date', { required: true, filterable: true }),
+    field('returnDate', 'Return Date', 'date'),
+    field('status', 'Status', 'select', {
+      required: true,
+      defaultValue: 'issued',
+      filterable: true,
+      options: ['issued', 'returned', 'overdue', 'lost'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('vehicles', 'Vehicle', 'transport', [
+    field('id', 'Vehicle ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Vehicle Name', 'text', { required: true, searchable: true }),
+    field('registrationNumber', 'Registration Number', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('capacity', 'Passenger Capacity', 'integer', {
+      required: true,
+      min: 1,
+      max: 100,
+    }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'inactive', 'maintenance'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+  ]),
+  entity('transportRoutes', 'Transport Route', 'transport', [
+    field('id', 'Route ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Route Name', 'text', {
+      required: true,
+      searchable: true,
+      sortable: true,
+    }),
+    field('code', 'Route Code', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('vehicleId', 'Vehicle', 'reference', { filterable: true }),
+    field('status', 'Status', 'select', {
+      defaultValue: 'active',
+      filterable: true,
+      options: ['active', 'inactive'].map((value) => ({ label: value, value })),
+    }),
+  ]),
+  entity('inventoryCategories', 'Inventory Category', 'inventory', [
+    field('id', 'Category ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Category Name', 'text', {
+      required: true,
+      searchable: true,
+    }),
+    field('code', 'Category Code', 'text', { required: true, unique: true }),
+  ]),
+  entity('inventoryItems', 'Inventory Item', 'inventory', [
+    field('id', 'Item ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('name', 'Item Name', 'text', {
+      required: true,
+      searchable: true,
+      sortable: true,
+    }),
+    field('sku', 'SKU', 'text', {
+      required: true,
+      unique: true,
+      searchable: true,
+    }),
+    field('unit', 'Unit', 'text', { required: true, defaultValue: 'piece' }),
+    field('reorderLevel', 'Reorder Level', 'decimal', {
+      required: true,
+      defaultValue: 0,
+      min: 0,
+    }),
+  ]),
+  entity('stockMovements', 'Stock Movement', 'inventory', [
+    field('id', 'Movement ID', 'readonly', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('tenantId', 'Tenant', 'reference', {
+      readonly: true,
+      visibleInForm: false,
+    }),
+    field('schoolId', 'School', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('itemId', 'Inventory Item', 'reference', {
+      required: true,
+      filterable: true,
+    }),
+    field('movementType', 'Movement Type', 'select', {
+      required: true,
+      filterable: true,
+      options: ['in', 'out', 'adjustment'].map((value) => ({
+        label: value,
+        value,
+      })),
+    }),
+    field('quantity', 'Quantity', 'decimal', {
+      required: true,
+      min: 0,
+      precision: 12,
+      scale: 3,
+    }),
+    field('date', 'Movement Date', 'datetime', {
+      required: true,
+      sortable: true,
+      filterable: true,
+    }),
+    field('referenceNumber', 'Reference Number', 'text', { searchable: true }),
+  ]),
+];

@@ -9,10 +9,21 @@ import { createCorsOptions } from './config/cors.js';
 import { createLogger } from './config/logger.js';
 import { AppError } from './core/errors/app-error.js';
 import { metadataRouter } from './routes/metadata.routes.js';
+import { createAuthRouter } from './routes/auth.routes.js';
+import { createEntityRouter } from './routes/entities.routes.js';
+import { z } from 'zod';
+import { createDomainWorkflowRouter } from './routes/domain-workflows.routes.js';
 
 type AppSettings = Pick<
   AppConfig,
-  'API_PREFIX' | 'CORS_ORIGINS' | 'NODE_ENV' | 'LOG_LEVEL'
+  | 'API_PREFIX'
+  | 'CORS_ORIGINS'
+  | 'NODE_ENV'
+  | 'LOG_LEVEL'
+  | 'JWT_ACCESS_SECRET'
+  | 'JWT_REFRESH_SECRET'
+  | 'JWT_ACCESS_EXPIRY'
+  | 'JWT_REFRESH_EXPIRY'
 >;
 
 const defaultSettings: AppSettings = {
@@ -20,6 +31,10 @@ const defaultSettings: AppSettings = {
   CORS_ORIGINS: 'http://localhost:4200',
   NODE_ENV: 'development',
   LOG_LEVEL: 'info',
+  JWT_ACCESS_SECRET: 'development-access-secret-change-me-123456789',
+  JWT_REFRESH_SECRET: 'development-refresh-secret-change-me-12345678',
+  JWT_ACCESS_EXPIRY: '15m',
+  JWT_REFRESH_EXPIRY: '7d',
 };
 
 export function createApp(settings: AppSettings = defaultSettings) {
@@ -45,6 +60,12 @@ export function createApp(settings: AppSettings = defaultSettings) {
   });
 
   app.use(`${settings.API_PREFIX}/metadata`, metadataRouter);
+  app.use(`${settings.API_PREFIX}/auth`, createAuthRouter(settings));
+  app.use(`${settings.API_PREFIX}/entities`, createEntityRouter(settings));
+  app.use(
+    `${settings.API_PREFIX}/workflows`,
+    createDomainWorkflowRouter(settings),
+  );
 
   app.use((request, response) => {
     response.status(404).json({
@@ -66,10 +87,28 @@ export function createApp(settings: AppSettings = defaultSettings) {
     }
 
     const requestId = request.id ?? randomUUID();
-    const statusCode = error instanceof AppError ? error.statusCode : 500;
+    const statusCode =
+      error instanceof AppError
+        ? error.statusCode
+        : error instanceof z.ZodError
+          ? 400
+          : error instanceof mongoose.Error.CastError
+            ? 400
+            : 500;
     const message =
-      error instanceof AppError ? error.message : 'Internal server error';
-    const errors = error instanceof AppError ? error.errors : [];
+      error instanceof AppError
+        ? error.message
+        : error instanceof z.ZodError
+          ? 'Validation failed'
+          : error instanceof mongoose.Error.CastError
+            ? 'Invalid record identifier'
+            : 'Internal server error';
+    const errors =
+      error instanceof AppError
+        ? error.errors
+        : error instanceof z.ZodError
+          ? error.issues
+          : [];
 
     log.error({ err: error, requestId }, 'Request failed');
     response.status(statusCode).json({
