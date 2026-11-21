@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import {
   Schema,
   model,
-  models,
   type InferSchemaType,
   type Model,
 } from 'mongoose';
@@ -64,5 +64,5 @@ userSchema.index({ tenantId: 1, status: 1 });
 
 export type UserDocument = InferSchemaType<typeof userSchema>;
 export const UserModel =
-  (models.User as Model<UserDocument> | undefined) ??
+  (mongoose.models.User as Model<UserDocument> | undefined) ??
   model<UserDocument>('User', userSchema);

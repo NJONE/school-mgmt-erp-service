@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import {
   Schema,
   model,
-  models,
   type InferSchemaType,
   type Model,
 } from 'mongoose';
@@ -32,5 +32,5 @@ refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export type RefreshTokenDocument = InferSchemaType<typeof refreshTokenSchema>;
 export const RefreshTokenModel =
-  (models.RefreshToken as Model<RefreshTokenDocument> | undefined) ??
+  (mongoose.models.RefreshToken as Model<RefreshTokenDocument> | undefined) ??
   model<RefreshTokenDocument>('RefreshToken', refreshTokenSchema);

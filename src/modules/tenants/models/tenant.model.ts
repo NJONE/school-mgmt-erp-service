@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import {
   Schema,
   model,
-  models,
   type InferSchemaType,
   type Model,
 } from 'mongoose';
@@ -31,5 +31,5 @@ tenantSchema.index({ code: 1 }, { unique: true });
 
 export type TenantDocument = InferSchemaType<typeof tenantSchema>;
 export const TenantModel =
-  (models.Tenant as Model<TenantDocument> | undefined) ??
+  (mongoose.models.Tenant as Model<TenantDocument> | undefined) ??
   model<TenantDocument>('Tenant', tenantSchema);

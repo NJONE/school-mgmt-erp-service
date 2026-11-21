@@ -1,7 +1,7 @@
+import mongoose from 'mongoose';
 import {
   Schema,
   model,
-  models,
   type InferSchemaType,
   type Model,
 } from 'mongoose';
@@ -35,5 +35,5 @@ permissionSchema.index(
 
 export type PermissionDocument = InferSchemaType<typeof permissionSchema>;
 export const PermissionModel =
-  (models.Permission as Model<PermissionDocument> | undefined) ??
+  (mongoose.models.Permission as Model<PermissionDocument> | undefined) ??
   model<PermissionDocument>('Permission', permissionSchema);
