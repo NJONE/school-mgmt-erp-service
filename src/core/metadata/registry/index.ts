@@ -1,4 +1,4 @@
-import { initialEntityMetadata } from '../definitions/index.js';
+import { initialEntityMetadata } from '../../../metadata/entities/index.js';
 import { MetadataRegistryService } from './metadata-registry.js';
 
 export const metadataRegistry = new MetadataRegistryService();
