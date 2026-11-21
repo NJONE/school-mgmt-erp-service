@@ -19,12 +19,101 @@ describe('MetadataRegistryService', () => {
       'academicSessions',
       'periods',
       'timetableEntries',
+      'subjectGroups',
+      'classSubjects',
+      'sectionTeachers',
+      'teacherSubjects',
+      'teacherAssignments',
+      'timetables',
       'curriculum',
       'lessonPlans',
       'homework',
       'assignments',
       'assignmentSubmissions',
     ]);
+  });
+
+  it('registers the Phase 6 academic, attendance, and examination entities', () => {
+    const registry = new MetadataRegistryService();
+    registry.registerMany(initialEntityMetadata);
+
+    const entityCodes = registry.listEntities().map(({ entityCode }) => entityCode);
+    for (const entityCode of [
+      'studentAttendance',
+      'staffAttendance',
+      'attendanceRules',
+      'examinations',
+      'marks',
+      'grades',
+      'results',
+      'reportCards',
+      'resultPublishing',
+    ]) {
+      expect(entityCodes).toContain(entityCode);
+    }
+  });
+
+  it('registers the Phase 7 fees, finance, payroll, library, transport, and inventory entities', () => {
+    const registry = new MetadataRegistryService();
+    registry.registerMany(initialEntityMetadata);
+
+    expect(registry.listModules()).toEqual(
+      expect.arrayContaining([
+        'fees',
+        'finance',
+        'payroll',
+        'library',
+        'transport',
+        'inventory',
+      ]),
+    );
+
+    for (const entityCode of [
+      'feePayments',
+      'financialYears',
+      'payrollRuns',
+      'books',
+      'transportRoutes',
+      'inventoryItems',
+    ]) {
+      expect(registry.getByEntityCode(entityCode)?.entityCode).toBe(entityCode);
+    }
+  });
+
+  it('registers the Phase 8 communication, report, subscription, and document entities', () => {
+    const registry = new MetadataRegistryService();
+    registry.registerMany(initialEntityMetadata);
+
+    expect(registry.listModules()).toEqual(
+      expect.arrayContaining([
+        'communications',
+        'reports',
+        'subscriptions',
+        'documents',
+      ]),
+    );
+
+    for (const entityCode of [
+      'notifications',
+      'messageThreads',
+      'reportSchedules',
+      'subscriptions',
+      'subscriptionInvoices',
+      'documentGenerationJobs',
+    ]) {
+      expect(registry.getByEntityCode(entityCode)?.entityCode).toBe(entityCode);
+    }
+  });
+
+  it('registers the five Phase 5 management entities once', () => {
+    const registry = new MetadataRegistryService();
+    registry.registerMany(initialEntityMetadata);
+
+    expect(
+      ['students', 'parents', 'staff', 'schools', 'branches'].map(
+        (entityCode) => registry.getByEntityCode(entityCode)?.entityCode,
+      ),
+    ).toEqual(['students', 'parents', 'staff', 'schools', 'branches']);
   });
 
   it('rejects duplicate entity codes without partially registering the batch', () => {
@@ -80,6 +169,6 @@ describe('MetadataRegistryService', () => {
     const results = registry.getByModule('academics');
     results.pop();
 
-    expect(registry.getByModule('academics')).toHaveLength(11);
+    expect(registry.getByModule('academics')).toHaveLength(17);
   });
 });

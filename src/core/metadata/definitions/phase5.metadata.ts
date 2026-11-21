@@ -1,5 +1,10 @@
 import { baseEntity, field } from './helpers.js';
 import type { EntityMetadata } from '../interfaces/metadata.js';
+import { branchMetadata } from './branch.metadata.js';
+import { parentMetadata } from './parent.metadata.js';
+import { schoolMetadata } from './school.metadata.js';
+import { staffMetadata } from './staff.metadata.js';
+import { studentMetadata } from './student.metadata.js';
 
 function simpleEntity(
   entity: string,
@@ -66,6 +71,11 @@ function simpleEntity(
 }
 
 export const phase5Metadata: EntityMetadata[] = [
+  studentMetadata,
+  parentMetadata,
+  staffMetadata,
+  schoolMetadata,
+  branchMetadata,
   simpleEntity('academicSessions', 'Academic Session', 'academics', [
     field('id', 'Session ID', 'readonly', {
       readonly: true,

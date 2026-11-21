@@ -7,6 +7,7 @@ export const parentMetadata = baseEntity({
   description:
     'Parent and guardian identity, contact, address, and portal access details.',
   module: 'parents',
+  scopes: { schoolScoped: true, branchScoped: true },
   fields: [
     field('id', 'Parent ID', 'readonly', {
       required: true,
