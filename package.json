@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
+    "seed:admin": "tsx src/scripts/seed-admin.ts",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "start": "node dist/server.js",

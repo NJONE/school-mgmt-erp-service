@@ -34,6 +34,31 @@ To run the service and MongoDB locally with Docker:
 docker compose up --build
 ```
 
+## Sample school administrator
+
+Set these variables in `.env` with a unique, strong password before running the
+seed command:
+
+```dotenv
+SEED_TENANT_NAME="Sample School"
+SEED_TENANT_CODE="SAMPLE"
+SEED_ADMIN_NAME="School Administrator"
+SEED_ADMIN_EMAIL="admin@example.com"
+SEED_ADMIN_PASSWORD="replace-with-a-unique-password-of-at-least-12-characters"
+```
+
+Then run:
+
+```sh
+npm run seed:admin
+```
+
+This creates or updates the sample tenant's `school-admin` role and admin
+account. The account receives the `*` permission, which grants all permissions
+checked by the API, while remaining scoped to that tenant. Re-running the
+command does not reset an existing account's password. The seed data is for
+development and should not be used as a production account configuration.
+
 ## Development checks
 
 ```sh
