@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
-import {
-  Schema,
-  model,
-  type InferSchemaType,
-  type Model,
-} from 'mongoose';
+import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 const tenantSchema = new Schema(
   {

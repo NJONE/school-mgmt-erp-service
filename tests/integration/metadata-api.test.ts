@@ -10,6 +10,23 @@ const app = createApp({
 });
 
 describe('metadata API', () => {
+  it('serves Swagger UI and the OpenAPI document', async () => {
+    const docs = await request(app).get('/api-docs/');
+    const spec = await request(app).get('/openapi.json');
+
+    expect(docs.status).toBe(200);
+    expect(docs.text).toContain('Swagger UI');
+    expect(spec.status).toBe(200);
+    expect(spec.body.info.title).toBe('School Management ERP API');
+    expect(spec.body.paths['/api/v1/auth/login']).toBeDefined();
+    expect(
+      spec.body.paths['/api/v1/entities/{entity}/{id}'].patch,
+    ).toBeDefined();
+    expect(spec.body.components.securitySchemes.bearerAuth.scheme).toBe(
+      'bearer',
+    );
+  });
+
   it('serves health and readiness endpoints', async () => {
     const health = await request(app).get('/health');
     const readiness = await request(app).get('/ready');

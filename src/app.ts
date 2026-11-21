@@ -13,6 +13,7 @@ import { createAuthRouter } from './routes/auth.routes.js';
 import { createEntityRouter } from './routes/entities.routes.js';
 import { z } from 'zod';
 import { createDomainWorkflowRouter } from './routes/domain-workflows.routes.js';
+import { docsRouter } from './routes/docs.routes.js';
 
 type AppSettings = Pick<
   AppConfig,
@@ -46,6 +47,23 @@ export function createApp(settings: AppSettings = defaultSettings) {
   app.use(cors(createCorsOptions(settings.CORS_ORIGINS)));
   app.use(express.json({ limit: '1mb' }));
   app.use(pinoHttp({ logger: log, genReqId: () => randomUUID() }));
+
+  app.use(
+    '/api-docs',
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:'],
+          fontSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+        },
+      },
+    }),
+  );
+  app.use(docsRouter);
 
   app.get('/health', (_request, response) => {
     response.status(200).json({ success: true, data: { status: 'ok' } });

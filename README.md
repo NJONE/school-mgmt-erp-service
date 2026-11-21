@@ -23,6 +23,11 @@ process is responding; `GET /ready` reports readiness after the database
 connection is established. Initial metadata endpoints are under
 `/api/v1/metadata`.
 
+Interactive API documentation is available at
+[`http://localhost:3000/api-docs`](http://localhost:3000/api-docs), with the
+OpenAPI document at `http://localhost:3000/openapi.json`. Use **Authorize** in
+Swagger UI to provide a bearer access token before trying protected endpoints.
+
 To run the service and MongoDB locally with Docker:
 
 ```sh

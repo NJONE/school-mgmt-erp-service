@@ -4,7 +4,8 @@ info:
   version: 0.1.0
   description: Initial health and metadata API for the school management ERP backend.
 servers:
-  - url: http://localhost:3000
+  - url: /
+    description: Current host
 paths:
   /health:
     get:
@@ -40,31 +41,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
-  /api/v1/metadata/{entity}:
-    parameters:
-      - name: entity
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Get entity metadata
-      responses:
-        '200':
-          description: Entity metadata.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '404':
-          description: Metadata entity not found.
   /api/v1/metadata/{entity}/form:
     parameters:
-      - name: entity
-        in: path
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/entity'
     get:
       summary: Get entity form layout
       responses:
@@ -75,14 +54,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
         '404':
-          description: Metadata entity not found.
+          $ref: '#/components/responses/NotFound'
   /api/v1/metadata/{entity}/table:
     parameters:
-      - name: entity
-        in: path
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/entity'
     get:
       summary: Get entity table layout
       responses:
@@ -93,14 +68,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
         '404':
-          description: Metadata entity not found.
+          $ref: '#/components/responses/NotFound'
   /api/v1/metadata/{entity}/filters:
     parameters:
-      - name: entity
-        in: path
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/entity'
     get:
       summary: Get entity filter layout
       responses:
@@ -111,12 +82,261 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
         '404':
-          description: Metadata entity not found.
+          $ref: '#/components/responses/NotFound'
+  /api/v1/metadata/{entity}:
+    parameters:
+      - $ref: '#/components/parameters/entity'
+    get:
+      summary: Get entity metadata
+      responses:
+        '200':
+          description: Entity metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/auth/login:
+    post:
+      summary: Authenticate with email and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated; returns access and refresh tokens.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/auth/refresh:
+    post:
+      summary: Rotate a refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: New access and refresh tokens.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/auth/logout:
+    post:
+      summary: Revoke the supplied refresh token and end the session
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Logged out.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/auth/me:
+    get:
+      summary: Get the authenticated identity
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user identity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/auth/users:
+    post:
+      summary: Create a user
+      description: Requires the users.create permission. Tenant and scope are derived from authenticated context.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/v1/auth/change-password:
+    post:
+      summary: Change the authenticated user's password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/entities/{entity}:
+    parameters:
+      - $ref: '#/components/parameters/entity'
+    get:
+      summary: List records for a registered entity
+      description: Requires a bearer token and entity-specific read permission. Filters and sorting must use metadata-approved fields.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: filters
+          in: query
+          description: JSON object of metadata-approved field/value filters.
+          schema:
+            type: string
+        - name: fields
+          in: query
+          description: Comma-separated metadata-approved fields to return.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated records.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      summary: Create a record for a registered entity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityWrite'
+      responses:
+        '201':
+          description: Record created.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/v1/entities/{entity}/{id}:
+    parameters:
+      - $ref: '#/components/parameters/entity'
+      - $ref: '#/components/parameters/id'
+    get:
+      summary: Get a record by ID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Record found.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      summary: Update part of a record
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityWrite'
+      responses:
+        '200':
+          description: Record updated.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      summary: Soft-delete a record
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Record soft-deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /api/v1/workflows/student-promotions:
     post:
       summary: Promote a student to a class and section
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentPromotionRequest'
       responses:
         '200':
           description: Promotion completed.
@@ -127,16 +347,18 @@ paths:
       summary: Record student attendance for multiple records
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentAttendanceRequest'
       responses:
         '201':
           description: Attendance records created.
   /api/v1/workflows/examinations/{id}/publish:
     parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/id'
     post:
       summary: Publish examination results
       security:
@@ -149,16 +371,18 @@ paths:
       summary: Record a fee payment
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeePaymentRequest'
       responses:
         '201':
           description: Payment recorded.
   /api/v1/workflows/payroll/runs/{id}/process:
     parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/id'
     post:
       summary: Process a payroll run
       security:
@@ -171,6 +395,12 @@ paths:
       summary: Queue a notification
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
       responses:
         '201':
           description: Notification queued.
@@ -179,10 +409,56 @@ paths:
       summary: Queue document generation
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentGenerationRequest'
       responses:
         '201':
           description: Document generation queued.
 components:
+  parameters:
+    entity:
+      name: entity
+      in: path
+      required: true
+      description: Registered metadata entity code, such as students or classes.
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9a-fA-F]{24}$'
+  responses:
+    ValidationError:
+      description: Request validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: The identity does not have permission for this operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Requested route, metadata entity, or record was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   securitySchemes:
     bearerAuth:
       type: http
@@ -191,9 +467,189 @@ components:
   schemas:
     SuccessResponse:
       type: object
-      required: [success, data]
+      required: [success]
       properties:
         success:
           type: boolean
           const: true
         data: {}
+        message:
+          type: string
+        meta:
+          type: object
+          additionalProperties: true
+    ErrorResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success:
+          type: boolean
+          const: false
+        message:
+          type: string
+        errors:
+          type: array
+          items: {}
+        requestId:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          minLength: 20
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          minLength: 8
+          maxLength: 128
+        newPassword:
+          type: string
+          minLength: 12
+          maxLength: 128
+    CreateUserRequest:
+      type: object
+      required: [email, displayName, password]
+      properties:
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+        schoolId:
+          type: string
+        branchId:
+          type: string
+        academicSessionId:
+          type: string
+        roleKeys:
+          type: array
+          items:
+            type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        isPlatformAdmin:
+          type: boolean
+        tenantId:
+          type: string
+    EntityWrite:
+      type: object
+      description: Entity fields are validated against the registered metadata. Tenant and scope are server controlled.
+      additionalProperties: true
+    StudentPromotionRequest:
+      type: object
+      required: [studentId, classId, sectionId, academicSessionId]
+      properties:
+        studentId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        classId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        sectionId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        academicSessionId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+    StudentAttendanceRequest:
+      type: object
+      required: [date, records]
+      properties:
+        date:
+          type: string
+          format: date
+        records:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            type: object
+            required: [studentId, classId, sectionId, status]
+            properties:
+              studentId:
+                type: string
+                pattern: '^[0-9a-fA-F]{24}$'
+              classId:
+                type: string
+                pattern: '^[0-9a-fA-F]{24}$'
+              sectionId:
+                type: string
+                pattern: '^[0-9a-fA-F]{24}$'
+              status:
+                type: string
+                enum: [present, absent, late, excused]
+              remarks:
+                type: string
+                maxLength: 1000
+    FeePaymentRequest:
+      type: object
+      required: [studentId, amount, paymentDate, paymentMethod]
+      properties:
+        studentId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        amount:
+          type: number
+          exclusiveMinimum: 0
+        paymentDate:
+          type: string
+          format: date-time
+        paymentMethod:
+          type: string
+          enum: [cash, bank, card, upi, cheque]
+        referenceNumber:
+          type: string
+          minLength: 1
+          maxLength: 100
+    NotificationRequest:
+      type: object
+      required: [recipientId, channel, body]
+      properties:
+        recipientId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        channel:
+          type: string
+          enum: [email, sms, whatsapp, push, in-app]
+        subject:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+          maxLength: 10000
+    DocumentGenerationRequest:
+      type: object
+      required: [templateId, documentType]
+      properties:
+        templateId:
+          type: string
+          pattern: '^[0-9a-fA-F]{24}$'
+        documentType:
+          type: string
+          minLength: 1
+          maxLength: 100

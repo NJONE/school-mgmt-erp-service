@@ -11,7 +11,7 @@ const envSchema = z
       .string()
       .regex(/^\/[a-zA-Z0-9/_-]*$/)
       .default('/api/v1'),
-    MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
+    MONGODB_URI: z.string().min(1, 'mongodb://127.0.0.1:27017/school_mgmt_erp'),
     CORS_ORIGINS: z.string().default('http://localhost:4200'),
     LOG_LEVEL: z
       .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
